@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Tests\Fixtures\Post;
+use Workbench\App\Models\Post;
 
 beforeEach(function () {
     Post::enableSmartCache();
 });
 
 it('can cache query results', function () {
-    Post::create(['title' => 'First Post', 'content' => 'Content 1', 'published' => true]);
-    Post::create(['title' => 'Second Post', 'content' => 'Content 2', 'published' => false]);
+    Post::factory()->published()->create(['title' => 'First Post']);
+    Post::factory()->draft()->create(['title' => 'Second Post']);
 
     // First call - should execute query
     $posts = Post::smartCache()->where('published', true)->smartGet();
@@ -25,9 +25,8 @@ it('can cache query results', function () {
 });
 
 it('can cache count queries', function () {
-    Post::create(['title' => 'First Post', 'published' => true]);
-    Post::create(['title' => 'Second Post', 'published' => true]);
-    Post::create(['title' => 'Third Post', 'published' => false]);
+    Post::factory()->published()->count(2)->create();
+    Post::factory()->draft()->create();
 
     $count = Post::smartCache()->where('published', true)->smartCount();
 
@@ -35,8 +34,8 @@ it('can cache count queries', function () {
 });
 
 it('can cache first query', function () {
-    Post::create(['title' => 'First Post', 'published' => true]);
-    Post::create(['title' => 'Second Post', 'published' => true]);
+    Post::factory()->published()->create(['title' => 'First Post']);
+    Post::factory()->published()->create(['title' => 'Second Post']);
 
     $post = Post::smartCache()->where('published', true)->smartFirst();
 
@@ -45,9 +44,7 @@ it('can cache first query', function () {
 });
 
 it('can cache aggregate queries', function () {
-    Post::create(['title' => 'Post 1', 'published' => true]);
-    Post::create(['title' => 'Post 22', 'published' => true]);
-    Post::create(['title' => 'Post 333', 'published' => true]);
+    Post::factory()->count(3)->create();
 
     $count = Post::smartCache()->smartCount();
 
@@ -55,7 +52,7 @@ it('can cache aggregate queries', function () {
 });
 
 it('respects custom TTL', function () {
-    Post::create(['title' => 'Test Post', 'published' => true]);
+    Post::factory()->published()->create();
 
     $posts = Post::smartCache(30)->where('published', true)->smartGet();
 
@@ -63,7 +60,7 @@ it('respects custom TTL', function () {
 });
 
 it('can disable smart cache per query', function () {
-    Post::create(['title' => 'Test Post', 'published' => true]);
+    Post::factory()->published()->create();
 
     $posts = Post::withoutSmartCache()->where('published', true)->get();
 
@@ -71,7 +68,7 @@ it('can disable smart cache per query', function () {
 });
 
 it('can disable smart cache globally for model', function () {
-    Post::create(['title' => 'Test Post', 'published' => true]);
+    Post::factory()->published()->create();
 
     Post::disableSmartCache();
 
@@ -83,7 +80,7 @@ it('can disable smart cache globally for model', function () {
 });
 
 it('can clear smart cache for model', function () {
-    Post::create(['title' => 'Test Post', 'published' => true]);
+    Post::factory()->published()->create();
 
     // Cache the query
     Post::smartCache()->where('published', true)->smartGet();

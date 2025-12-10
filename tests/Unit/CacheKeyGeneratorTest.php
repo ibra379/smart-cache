@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use DialloIbrahima\SmartCache\Support\CacheKeyGenerator;
-use Tests\Fixtures\Post;
+use Workbench\App\Models\Post;
 
 it('generates unique cache keys for different queries', function () {
     $query1 = Post::query()->where('published', true);
@@ -31,8 +31,8 @@ it('generates different keys for count vs get', function () {
     $getKey = CacheKeyGenerator::generate($query);
     $countKey = CacheKeyGenerator::generateForCount($query);
 
-    expect($getKey)->not->toBe($countKey);
-    expect($countKey)->toEndWith(':count');
+    expect($getKey)->not->toBe($countKey)
+        ->and($countKey)->toEndWith(':count');
 });
 
 it('generates different keys for first vs get', function () {
@@ -41,8 +41,8 @@ it('generates different keys for first vs get', function () {
     $getKey = CacheKeyGenerator::generate($query);
     $firstKey = CacheKeyGenerator::generateForFirst($query);
 
-    expect($getKey)->not->toBe($firstKey);
-    expect($firstKey)->toEndWith(':first');
+    expect($getKey)->not->toBe($firstKey)
+        ->and($firstKey)->toEndWith(':first');
 });
 
 it('generates different keys for different aggregate functions', function () {

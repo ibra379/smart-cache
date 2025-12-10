@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-use Tests\Fixtures\Post;
+use Workbench\App\Models\Post;
 
 beforeEach(function () {
     Post::enableSmartCache();
 });
 
 it('invalidates cache when model is created', function () {
-    // Cache query
+    // Cache query (empty result)
     Post::smartCache()->smartGet();
 
     // Create should invalidate
-    Post::create(['title' => 'New Post', 'published' => true]);
+    $post = Post::factory()->create(['title' => 'New Post']);
 
     // Query again - should now include new post
     $posts = Post::smartCache()->smartGet();
@@ -23,7 +23,7 @@ it('invalidates cache when model is created', function () {
 });
 
 it('invalidates cache when model is updated', function () {
-    $post = Post::create(['title' => 'Original Title', 'published' => true]);
+    $post = Post::factory()->published()->create(['title' => 'Original Title']);
 
     // Cache query
     $cachedPosts = Post::smartCache()->where('published', true)->smartGet();
@@ -39,8 +39,8 @@ it('invalidates cache when model is updated', function () {
 });
 
 it('invalidates cache when model is deleted', function () {
-    $post1 = Post::create(['title' => 'Post 1', 'published' => true]);
-    $post2 = Post::create(['title' => 'Post 2', 'published' => true]);
+    $post1 = Post::factory()->create(['title' => 'Post 1']);
+    $post2 = Post::factory()->create(['title' => 'Post 2']);
 
     // Cache query
     $cachedPosts = Post::smartCache()->smartGet();
