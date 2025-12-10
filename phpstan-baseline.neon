@@ -1,0 +1,5 @@
+parameters:
+    ignoreErrors:
+        -
+            message: '#Trait DialloIbrahima\\SmartCache\\HasSmartCache is used zero times and is not analysed#'
+            path: src/HasSmartCache.php
