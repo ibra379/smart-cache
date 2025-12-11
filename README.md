@@ -1,10 +1,12 @@
-# 🚀 Laravel SmartCache
+<h1 align="center">🚀 Laravel SmartCache</h1>
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/dialloibrahima/smart-cache.svg?style=flat-square)](https://packagist.org/packages/dialloibrahima/smart-cache)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/ibra379/smart-cache/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/ibra379/smart-cache/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/dialloibrahima/smart-cache.svg?style=flat-square)](https://packagist.org/packages/dialloibrahima/smart-cache)
-[![PHP Version](https://img.shields.io/badge/php-%5E8.2-8892BF.svg?style=flat-square)](https://www.php.net/)
-[![Laravel Version](https://img.shields.io/badge/laravel-10.x%20%7C%2011.x%20%7C%2012.x-FF2D20.svg?style=flat-square)](https://laravel.com/)
+<p align="center">
+<a href="https://packagist.org/packages/dialloibrahima/smart-cache"><img src="https://img.shields.io/packagist/v/dialloibrahima/smart-cache.svg?style=flat-square" alt="Latest Version on Packagist"></a>
+<a href="https://github.com/ibra379/smart-cache/actions?query=workflow%3Arun-tests+branch%3Amain"><img src="https://img.shields.io/github/actions/workflow/status/ibra379/smart-cache/run-tests.yml?branch=main&label=tests&style=flat-square" alt="GitHub Tests Action Status"></a>
+<a href="https://packagist.org/packages/dialloibrahima/smart-cache"><img src="https://img.shields.io/packagist/dt/dialloibrahima/smart-cache.svg?style=flat-square" alt="Total Downloads"></a>
+<a href="https://www.php.net/"><img src="https://img.shields.io/badge/php-%5E8.2-8892BF.svg?style=flat-square" alt="PHP Version"></a>
+<a href="https://laravel.com/"><img src="https://img.shields.io/badge/laravel-10.x%20%7C%2011.x%20%7C%2012.x-FF2D20.svg?style=flat-square" alt="Laravel Version"></a>
+</p>
 
 **SmartCache** adds automatic and intelligent caching to Eloquent queries, with automatic invalidation when data changes. **Zero configuration, maximum performance.**
 
