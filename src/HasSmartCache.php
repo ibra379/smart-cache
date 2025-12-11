@@ -11,7 +11,22 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * Trait for Eloquent models to enable smart caching.
+ *
  * @mixin Model
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder smartCache(?int $ttl = null)
+ * @method static \Illuminate\Database\Eloquent\Builder withoutSmartCache()
+ * @method static \Illuminate\Database\Eloquent\Collection smartGet(array|string $columns = ['*'])
+ * @method static static|null smartFirst(array|string $columns = ['*'])
+ * @method static int smartCount(string $columns = '*')
+ * @method static float|int smartSum(string $column)
+ * @method static float|int|null smartAvg(string $column)
+ * @method static mixed smartMax(string $column)
+ * @method static mixed smartMin(string $column)
+ * @method static void disableSmartCache()
+ * @method static void enableSmartCache()
+ * @method static void clearSmartCache()
  */
 trait HasSmartCache
 {
