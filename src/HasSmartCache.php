@@ -212,4 +212,24 @@ trait HasSmartCache
 
         $cacheManager->invalidateTags([$prefix.'.'.$table]);
     }
+
+    /**
+     * Get the list of model classes whose cache should be invalidated when this model changes.
+     *
+     * Override this method in your model to define related cache invalidation.
+     *
+     * Example:
+     * ```php
+     * public static function invalidatesSmartCacheOf(): array
+     * {
+     *     return [Notification::class, Dashboard::class];
+     * }
+     * ```
+     *
+     * @return array<class-string<Model>>
+     */
+    public static function invalidatesSmartCacheOf(): array
+    {
+        return [];
+    }
 }

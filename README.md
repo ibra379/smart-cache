@@ -250,6 +250,28 @@ This design is **intentional**:
 | `Model::disableSmartCache()` | Disable caching for the entire model |
 | `Model::enableSmartCache()` | Re-enable caching for the model |
 | `Model::clearSmartCache()` | Clear all cache for the model |
+| `Model::invalidatesSmartCacheOf()` | Define related models to invalidate (override in model) |
+
+### Related Cache Invalidation
+
+When a related model changes, you might want to invalidate the cache of parent models automatically. Override `invalidatesSmartCacheOf()` in your model:
+
+```php
+class Comment extends Model
+{
+    use HasSmartCache;
+
+    /**
+     * When a Comment changes, also invalidate Post and Notification cache.
+     */
+    public static function invalidatesSmartCacheOf(): array
+    {
+        return [Post::class, Notification::class];
+    }
+}
+```
+
+Now when you create, update, or delete a `Comment`, the cache for both `Post` and `Notification` will be automatically invalidated!
 
 ### Complete Examples
 

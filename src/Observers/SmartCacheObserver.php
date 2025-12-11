@@ -54,13 +54,27 @@ class SmartCacheObserver
     }
 
     /**
-     * Invalidate cache for the model's table.
+     * Invalidate cache for the model's table and related models.
      */
     protected function invalidateCache(Model $model): void
     {
         $table = $model->getTable();
         $prefix = $this->cacheManager->getPrefix();
 
+        // Invalidate this model's cache
         $this->cacheManager->invalidateTags([$prefix.'.'.$table]);
+
+        // Invalidate related model caches
+        if (method_exists($model, 'invalidatesSmartCacheOf')) {
+            /** @var array<class-string<Model>> $relatedModels */
+            $relatedModels = $model::invalidatesSmartCacheOf();
+
+            foreach ($relatedModels as $relatedClass) {
+                /** @var Model $relatedInstance */
+                $relatedInstance = new $relatedClass;
+                $relatedTable = $relatedInstance->getTable();
+                $this->cacheManager->invalidateTags([$prefix.'.'.$relatedTable]);
+            }
+        }
     }
 }
