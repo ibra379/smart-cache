@@ -13,20 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Trait for Eloquent models to enable smart caching.
  *
- * @mixin Model
+ * @template TModel of Model
  *
- * @method static \Illuminate\Database\Eloquent\Builder smartCache(?int $ttl = null)
- * @method static \Illuminate\Database\Eloquent\Builder withoutSmartCache()
- * @method static \Illuminate\Database\Eloquent\Collection smartGet(array|string $columns = ['*'])
- * @method static static|null smartFirst(array|string $columns = ['*'])
- * @method static int smartCount(string $columns = '*')
- * @method static float|int smartSum(string $column)
- * @method static float|int|null smartAvg(string $column)
- * @method static mixed smartMax(string $column)
- * @method static mixed smartMin(string $column)
- * @method static void disableSmartCache()
- * @method static void enableSmartCache()
- * @method static void clearSmartCache()
+ * @mixin Model
  */
 trait HasSmartCache
 {
@@ -53,7 +42,7 @@ trait HasSmartCache
             return $query;
         }
 
-        // Store TTL in query for later use
+        // Store TTL in a query for later use
         $query->getModel()->smartCacheTtl = $ttl;
 
         return $query;
@@ -74,7 +63,7 @@ trait HasSmartCache
      * Get results with smart caching.
      *
      * @param  array<string>|string  $columns
-     * @return Collection<int, static>
+     * @return Collection<int, TModel>
      */
     public function scopeSmartGet(Builder $query, array|string $columns = ['*']): Collection
     {
