@@ -61,4 +61,23 @@ return [
     |
     */
     'logging' => env('SMART_CACHE_LOGGING', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard
+    |--------------------------------------------------------------------------
+    |
+    | Configure the SmartCache monitoring dashboard.
+    |
+    */
+    'dashboard' => [
+        // Enable/disable the dashboard
+        'enabled' => env('SMART_CACHE_DASHBOARD', false),
+
+        // Middleware applied to dashboard routes
+        'middleware' => ['web'],
+
+        // URL path for the dashboard
+        'path' => 'smart-cache',
+    ],
 ];

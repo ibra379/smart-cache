@@ -70,7 +70,7 @@ class SmartCacheManager
      *
      * @param  array<string>  $tags
      */
-    public function remember(string $key, array $tags, int $ttl, callable $callback): mixed
+    public function remember(string $key, array $tags, int $ttl, callable $callback, string $table = '', string $type = 'get'): mixed
     {
         if (! $this->enabled) {
             return $callback();
@@ -78,10 +78,31 @@ class SmartCacheManager
 
         $fullKey = $this->prefix.'.'.$key;
 
+        // Check if value exists in cache (for stats tracking)
+        $cacheStore = $this->supportsTags() && ! empty($tags)
+            ? $this->cache->tags($tags)
+            : $this->cache;
+
+        $exists = $cacheStore->has($fullKey);
+
         if ($this->supportsTags() && ! empty($tags)) {
             $result = $this->cache->tags($tags)->remember($fullKey, $ttl * 60, $callback);
         } else {
             $result = $this->cache->remember($fullKey, $ttl * 60, $callback);
+        }
+
+        // Track stats if dashboard is enabled
+        if (config('smart-cache.dashboard.enabled', false)) {
+            /** @var SmartCacheStats $stats */
+            $stats = app(SmartCacheStats::class);
+
+            if ($exists) {
+                $stats->recordHit($key, $table ?: 'unknown', $type);
+                $this->logHit($key);
+            } else {
+                $stats->recordMiss($key, $table ?: 'unknown', $type);
+                $this->logMiss($key);
+            }
         }
 
         return $result;

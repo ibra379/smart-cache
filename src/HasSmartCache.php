@@ -195,7 +195,7 @@ trait HasSmartCache
         $prefix = $cacheManager->getPrefix();
         $tags = [$prefix.'.'.$table];
 
-        return $cacheManager->remember($cacheKey, $tags, $ttl, $callback);
+        return $cacheManager->remember($cacheKey, $tags, $ttl, $callback, $table, $type);
     }
 
     /**
@@ -230,7 +230,7 @@ trait HasSmartCache
             $prefix.'.'.$table.'.'.$id,   // Record-level tag
         ];
 
-        return $cacheManager->remember($cacheKey, $tags, $ttl, $callback);
+        return $cacheManager->remember($cacheKey, $tags, $ttl, $callback, $table, 'find');
     }
 
     /**
