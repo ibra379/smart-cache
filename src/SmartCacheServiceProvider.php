@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DialloIbrahima\SmartCache;
 
+use DialloIbrahima\SmartCache\Commands\ClearSmartCacheCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -13,7 +14,8 @@ class SmartCacheServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('smart-cache')
-            ->hasConfigFile();
+            ->hasConfigFile()
+            ->hasCommand(ClearSmartCacheCommand::class);
     }
 
     public function packageRegistered(): void

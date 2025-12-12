@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder withoutSmartCache()
  * @method \Illuminate\Database\Eloquent\Collection smartGet(array|string $columns = ['*'])
  * @method static|null smartFirst(array|string $columns = ['*'])
+ * @method static|null smartFind(int|string $id, array|string $columns = ['*'])
  * @method int smartCount(string $columns = '*')
  * @method float|int smartSum(string $column)
  * @method float|int|null smartAvg(string $column)
@@ -94,6 +95,23 @@ trait HasSmartCache
         return $this->executeWithSmartCache($query, function () use ($query, $columns) {
             return $query->first($columns);
         }, 'first');
+    }
+
+    /**
+     * Find a model by its primary key with smart caching.
+     * Uses record-level cache tags for granular invalidation.
+     *
+     * @param  int|string  $id
+     * @param  array<string>|string  $columns
+     * @return static|null
+     */
+    public function scopeSmartFind(Builder $query, int|string $id, array|string $columns = ['*']): ?Model
+    {
+        $columns = is_array($columns) ? $columns : [$columns];
+
+        return $this->executeWithSmartCacheById($query, $id, function () use ($query, $id, $columns) {
+            return $query->find($id, $columns);
+        });
     }
 
     /**
@@ -176,6 +194,41 @@ trait HasSmartCache
         $table = $query->getModel()->getTable();
         $prefix = $cacheManager->getPrefix();
         $tags = [$prefix.'.'.$table];
+
+        return $cacheManager->remember($cacheKey, $tags, $ttl, $callback);
+    }
+
+    /**
+     * Execute a query with smart caching using record-level tags.
+     * This allows for granular invalidation when a specific record changes.
+     */
+    protected function executeWithSmartCacheById(
+        Builder $query,
+        int|string $id,
+        callable $callback
+    ): mixed {
+        /** @var SmartCacheManager $cacheManager */
+        $cacheManager = app(SmartCacheManager::class);
+
+        if (! $cacheManager->isEnabled() || ! static::$smartCacheEnabled) {
+            return $callback();
+        }
+
+        // Get TTL from model or use config default
+        $ttl = $query->getModel()->smartCacheTtl ?? $cacheManager->getTtl();
+
+        // Generate cache key based on table and ID
+        $table = $query->getModel()->getTable();
+        $prefix = $cacheManager->getPrefix();
+        $cacheKey = $prefix.'.'.$table.'.find.'.$id;
+
+        // Use BOTH table-level and record-level tags
+        // Table tag: for clearing all cache of this model
+        // Record tag: for granular invalidation
+        $tags = [
+            $prefix.'.'.$table,           // Table-level tag
+            $prefix.'.'.$table.'.'.$id,   // Record-level tag
+        ];
 
         return $cacheManager->remember($cacheKey, $tags, $ttl, $callback);
     }

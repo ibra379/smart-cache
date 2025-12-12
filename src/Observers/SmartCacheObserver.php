@@ -61,7 +61,13 @@ class SmartCacheObserver
         $table = $model->getTable();
         $prefix = $this->cacheManager->getPrefix();
 
-        // Invalidate this model's cache
+        // Invalidate record-level cache (for smartFind)
+        $id = $model->getKey();
+        if ($id !== null) {
+            $this->cacheManager->invalidateTags([$prefix.'.'.$table.'.'.$id]);
+        }
+
+        // Invalidate table-level cache (for smartGet, smartFirst, etc.)
         $this->cacheManager->invalidateTags([$prefix.'.'.$table]);
 
         // Invalidate related model caches
