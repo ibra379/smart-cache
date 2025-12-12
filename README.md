@@ -250,6 +250,7 @@ This design is **intentional**:
 |--------|-------------|---------|
 | `smartGet($columns = ['*'])` | Retrieve collection with cache | `Collection` |
 | `smartFirst($columns = ['*'])` | Retrieve first result with cache | `Model\|null` |
+| `smartFind($id, $columns = ['*'])` | Find by ID with **granular** cache (record-level invalidation) | `Model\|null` |
 | `smartCount($column = '*')` | Count results with cache | `int` |
 | `smartSum($column)` | Sum values with cache | `float\|int` |
 | `smartAvg($column)` | Average values with cache | `float\|int\|null` |
