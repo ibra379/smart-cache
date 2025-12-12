@@ -13,8 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Trait for Eloquent models to enable smart caching.
  *
- * @template TModel of Model
- *
  * @mixin Model
  */
 trait HasSmartCache
@@ -63,7 +61,7 @@ trait HasSmartCache
      * Get results with smart caching.
      *
      * @param  array<string>|string  $columns
-     * @return Collection<int, TModel>
+     * @return Collection<int, static>
      */
     public function scopeSmartGet(Builder $query, array|string $columns = ['*']): Collection
     {
