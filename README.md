@@ -254,6 +254,58 @@ This design is **intentional**:
 | `Model::clearSmartCache()` | Clear all cache for the model |
 | `Model::invalidatesSmartCacheOf()` | Define related models to invalidate (override in model) |
 
+### Artisan Commands
+
+Clear cache from the command line:
+
+```bash
+# Clear cache for a specific model
+php artisan smart-cache:clear App\\Models\\User
+
+# Clear all SmartCache entries
+php artisan smart-cache:clear --all
+```
+
+### Granular Cache Invalidation (smartFind)
+
+Use `smartFind()` for record-level caching. When a specific record is updated, only its cache is invalidated:
+
+```php
+// Cache individual records with record-level tags
+$user1 = User::smartCache()->smartFind(1);  // Tag: smart_cache.users.1
+$user2 = User::smartCache()->smartFind(2);  // Tag: smart_cache.users.2
+
+// When User 1 is updated, only User 1's cache is invalidated
+$user1->update(['name' => 'New Name']);  // Invalidates: smart_cache.users.1
+// User 2's cache remains valid!
+```
+
+### Web Dashboard
+
+SmartCache includes an optional monitoring dashboard:
+
+1. **Enable the dashboard** in your `.env`:
+```env
+SMART_CACHE_DASHBOARD=true
+```
+
+2. **Access the dashboard** at `/smart-cache`
+
+**Features:**
+- 📊 View cache hits/misses and hit ratio
+- 📋 See recent cached queries
+- 🗑️ Clear cache from UI (all or by model)
+- ⚙️ View current configuration
+
+**Configuration options in `config/smart-cache.php`:**
+```php
+'dashboard' => [
+    'enabled' => env('SMART_CACHE_DASHBOARD', false),
+    'middleware' => ['web', 'auth'],  // Add auth for production!
+    'path' => 'smart-cache',
+],
+```
+
 ### Related Cache Invalidation
 
 When a related model changes, you might want to invalidate the cache of parent models automatically. Override `invalidatesSmartCacheOf()` in your model:
