@@ -14,6 +14,16 @@ use Illuminate\Database\Eloquent\Model;
  * Trait for Eloquent models to enable smart caching.
  *
  * @mixin Model
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder smartCache(?int $ttl = null)
+ * @method static \Illuminate\Database\Eloquent\Builder withoutSmartCache()
+ * @method \Illuminate\Database\Eloquent\Collection smartGet(array|string $columns = ['*'])
+ * @method static|null smartFirst(array|string $columns = ['*'])
+ * @method int smartCount(string $columns = '*')
+ * @method float|int smartSum(string $column)
+ * @method float|int|null smartAvg(string $column)
+ * @method mixed smartMax(string $column)
+ * @method mixed smartMin(string $column)
  */
 trait HasSmartCache
 {
