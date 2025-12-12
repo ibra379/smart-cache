@@ -12,6 +12,22 @@
 
 ---
 
+## 🆕 What's New in v2.0
+
+| Feature | Description |
+|---------|-------------|
+| 🔍 **smartFind()** | Granular cache invalidation - cache by record ID |
+| 📊 **Web Dashboard** | Real-time monitoring at `/smart-cache` |
+| 🛠️ **Artisan Command** | `php artisan smart-cache:clear` |
+| 📈 **Stats Tracking** | Track hits, misses, and query logs |
+| ✅ **49 Tests** | 98 assertions for robust reliability |
+
+```bash
+composer require dialloibrahima/smart-cache:^2.0
+```
+
+---
+
 ## 📋 Table of Contents
 
 - [The Problem](#-the-problem)
@@ -20,6 +36,8 @@
 - [Quick Start](#-quick-start)
 - [How It Works](#-how-it-works)
 - [API Reference](#-api-reference)
+- [Web Dashboard](#-web-dashboard)
+- [Artisan Commands](#-artisan-commands)
 - [Configuration](#%EF%B8%8F-configuration)
 - [Use Cases](#-use-cases)
 - [Best Practices](#-best-practices)
