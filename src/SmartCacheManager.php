@@ -109,7 +109,7 @@ class SmartCacheManager
     }
 
     /**
-     * Invalidate cache by tags.
+     * Invalidate cache by tags..
      *
      * @param  array<string>  $tags
      */
