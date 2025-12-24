@@ -58,8 +58,8 @@ class SmartCacheServiceProvider extends PackageServiceProvider
                 Route::post('/clear', [SmartCacheDashboardController::class, 'clearAll'])
                     ->name('smart-cache.clear-all');
 
-                Route::post('/clear-model', [SmartCacheDashboardController::class, 'clearModel'])
-                    ->name('smart-cache.clear-model');
+                Route::post('/clear-table/{table}', [SmartCacheDashboardController::class, 'clearTable'])
+                    ->name('smart-cache.clear-table');
             });
     }
 }

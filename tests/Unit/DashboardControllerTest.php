@@ -5,7 +5,6 @@ declare(strict_types=1);
 use DialloIbrahima\SmartCache\Http\Controllers\SmartCacheDashboardController;
 use DialloIbrahima\SmartCache\SmartCacheManager;
 use DialloIbrahima\SmartCache\SmartCacheStats;
-use Illuminate\Http\Request;
 
 beforeEach(function () {
     config(['smart-cache.dashboard.enabled' => true]);
@@ -23,7 +22,7 @@ it('controller index returns view with stats', function () {
     $view = $controller->index();
 
     expect($view->getName())->toBe('smart-cache::dashboard');
-    expect($view->getData())->toHaveKeys(['stats', 'enabled', 'supportsTags', 'prefix', 'ttl']);
+    expect($view->getData())->toHaveKeys(['stats', 'enabled', 'supportsTags', 'prefix', 'ttl', 'models']);
 });
 
 it('controller passes correct stats to view', function () {
@@ -56,24 +55,31 @@ it('controller clearAll resets stats and redirects', function () {
     expect($stats->getMisses())->toBe(0);
 });
 
-it('controller clearModel validates model class exists', function () {
+it('controller clearTable works with valid table', function () {
     $controller = app(SmartCacheDashboardController::class);
-    $request = Request::create('/clear-model', 'POST', ['model' => 'NonExistent\Model']);
 
-    $response = $controller->clearModel($request);
-
-    expect($response->getStatusCode())->toBe(302);
-    expect(session('error'))->not->toBeNull();
-});
-
-it('controller clearModel works with valid model', function () {
-    $controller = app(SmartCacheDashboardController::class);
-    $request = Request::create('/clear-model', 'POST', ['model' => 'Workbench\App\Models\Post']);
-
-    $response = $controller->clearModel($request);
+    $response = $controller->clearTable('posts');
 
     expect($response->getStatusCode())->toBe(302);
     expect(session('success'))->not->toBeNull();
+});
+
+it('controller clearTable returns success message with table name', function () {
+    $controller = app(SmartCacheDashboardController::class);
+
+    $response = $controller->clearTable('users');
+
+    expect($response->getStatusCode())->toBe(302);
+    expect(session('success'))->toContain('users');
+});
+
+it('controller clearTable handles table names with underscores', function () {
+    $controller = app(SmartCacheDashboardController::class);
+
+    $response = $controller->clearTable('user_posts');
+
+    expect($response->getStatusCode())->toBe(302);
+    expect(session('success'))->toContain('user_posts');
 });
 
 it('controller shows correct configuration values', function () {
@@ -102,3 +108,32 @@ it('controller shows correct configuration values', function () {
     expect($data['ttl'])->toBe(120);
     expect($data['enabled'])->toBeTrue();
 });
+
+it('controller index includes models in view data', function () {
+    $controller = app(SmartCacheDashboardController::class);
+
+    $view = $controller->index();
+    $data = $view->getData();
+
+    expect($data)->toHaveKey('models');
+    expect($data['models'])->toBeArray();
+});
+
+it('controller clearAll redirects to dashboard path', function () {
+    config(['smart-cache.dashboard.path' => 'custom-cache-path']);
+
+    $controller = app(SmartCacheDashboardController::class);
+    $response = $controller->clearAll();
+
+    expect($response->getTargetUrl())->toContain('custom-cache-path');
+});
+
+it('controller clearTable redirects to dashboard path', function () {
+    config(['smart-cache.dashboard.path' => 'my-cache']);
+
+    $controller = app(SmartCacheDashboardController::class);
+    $response = $controller->clearTable('posts');
+
+    expect($response->getTargetUrl())->toContain('my-cache');
+});
+
