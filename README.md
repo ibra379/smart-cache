@@ -12,18 +12,17 @@
 
 ---
 
-## 🆕 What's New in v2.0
+## 🆕 What's New in v2.2
 
 | Feature | Description |
 |---------|-------------|
-| 🔍 **smartFind()** | Granular cache invalidation - cache by record ID |
-| 📊 **Web Dashboard** | Real-time monitoring at `/smart-cache` |
-| 🛠️ **Artisan Command** | `php artisan smart-cache:clear` |
-| 📈 **Stats Tracking** | Track hits, misses, and query logs |
-| ✅ **49 Tests** | 98 assertions for robust reliability |
+| 🔗 **Cache Relations Diagram** | Mermaid diagram showing invalidation relationships |
+| 🔄 **Cascade Invalidation** | Dashboard invalidation cascades to related models |
+| 🛠️ **Fixed Clear All** | Now properly clears all model caches |
+| ✅ **63 Tests** | 124 assertions for robust reliability |
 
 ```bash
-composer require dialloibrahima/smart-cache:^2.0
+composer require dialloibrahima/smart-cache:^2.2
 ```
 
 ---
@@ -311,10 +310,12 @@ SMART_CACHE_DASHBOARD=true
 2. **Access the dashboard** at `/smart-cache`
 
 **Features:**
-- 📊 View cache hits/misses and hit ratio
-- 📋 See recent cached queries
-- 🗑️ Clear cache from UI (all or by model)
-- ⚙️ View current configuration
+- 🔗 **Cache Relations Diagram** - Mermaid diagram showing which models invalidate which
+- 📦 **Cached Models List** - All models using SmartCache with their tables
+- ➡️ **Invalidates Column** - Shows which related models each model invalidates
+- 🗑️ **Quick Invalidation** - One-click cache clearing per model (cascades to related models)
+- 🗑️ **Clear All** - Properly clears all model caches at once
+- ⚙️ **Configuration** - View current settings
 
 **Configuration options in `config/smart-cache.php`:**
 ```php

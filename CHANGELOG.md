@@ -2,6 +2,23 @@
 
 All notable changes to SmartCache will be documented in this file.
 
+## [2.2.0] - 2024-12-24
+
+### Added
+- **Cache Relations Diagram** - Mermaid diagram in dashboard showing cache invalidation relationships
+- **Cascade Invalidation** - `clearTable()` now invalidates related models automatically
+- `generateMermaidDiagram()` method in SmartCacheDiscovery
+- `getRelatedTables()` method for cascade invalidation lookup
+- 4 new tests for relations and diagram functionality
+
+### Fixed
+- **Clear All not working** - Now properly invalidates all discovered model tables
+- Dashboard shows "Invalidates" column for each model
+
+### Developer Experience
+- 63 tests with 124 assertions
+- PHPStan level max compliance
+
 ## [2.1.0] - 2024-12-24
 
 ### Added
