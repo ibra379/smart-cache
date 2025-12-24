@@ -2,6 +2,23 @@
 
 All notable changes to SmartCache will be documented in this file.
 
+## [2.1.0] - 2024-12-24
+
+### Added
+- **Model Auto-Discovery** - Dashboard automatically detects all models using `HasSmartCache` trait
+- **Quick Invalidation Buttons** - Each model in dashboard has an "Invalidate" button
+- `SmartCacheDiscovery` class for scanning and discovering cached models
+- 17 new tests for dashboard and discovery functionality
+
+### Changed
+- Dashboard now shows a "Cached Models" section instead of "Recent Queries"
+- Replaced `clearModel()` with `clearTable()` for simpler cache invalidation
+- Removed manual model input field (no longer needed with auto-discovery)
+
+### Developer Experience
+- 59 tests with 111 assertions
+- PHPStan level max compliance
+
 ## [2.0.0] - 2025-12-12
 
 ### Added
