@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartCache Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -31,30 +32,6 @@
         }
         .alert-success { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; }
         .alert-error { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 1.5rem;
-            text-align: center;
-        }
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            background: linear-gradient(90deg, #00d4ff, #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .stat-label { color: #9ca3af; margin-top: 0.5rem; }
-        .stat-card.hits .stat-value { color: #22c55e; -webkit-text-fill-color: #22c55e; }
-        .stat-card.misses .stat-value { color: #ef4444; -webkit-text-fill-color: #ef4444; }
         .card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -87,7 +64,6 @@
             color: white;
         }
         .btn-warning:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); }
-        .actions { display: flex; gap: 1rem; flex-wrap: wrap; }
         table { width: 100%; border-collapse: collapse; }
         th, td {
             padding: 0.75rem;
@@ -103,13 +79,20 @@
         }
         .badge-enabled { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
         .badge-disabled { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge-relation { background: rgba(124, 58, 237, 0.2); color: #a78bfa; }
         .config-item { display: flex; justify-content: space-between; padding: 0.5rem 0; }
         .config-label { color: #9ca3af; }
         .empty-state { text-align: center; padding: 2rem; color: #6b7280; }
-        .model-row { display: flex; justify-content: space-between; align-items: center; }
-        .model-info { flex: 1; }
         .model-class { font-weight: 500; color: #fff; }
         .model-table { font-size: 0.875rem; color: #9ca3af; font-family: monospace; }
+        .mermaid-container {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+        .mermaid { color: #fff; }
     </style>
 </head>
 <body>
@@ -149,6 +132,18 @@
             </div>
         </div>
 
+        <!-- Cache Relations Diagram -->
+        @if(count($models) > 0)
+        <div class="card">
+            <h2 class="card-title">🔗 Cache Relations</h2>
+            <div class="mermaid-container">
+                <pre class="mermaid">
+{{ $mermaidDiagram }}
+                </pre>
+            </div>
+        </div>
+        @endif
+
         <!-- Cached Models -->
         <div class="card">
             <h2 class="card-title">📦 Cached Models</h2>
@@ -158,6 +153,7 @@
                         <tr>
                             <th>Model</th>
                             <th>Table</th>
+                            <th>Invalidates</th>
                             <th style="text-align: right;">Actions</th>
                         </tr>
                     </thead>
@@ -171,6 +167,15 @@
                                 </td>
                                 <td>
                                     <span class="model-table">{{ $model['table'] }}</span>
+                                </td>
+                                <td>
+                                    @if(!empty($model['invalidates']))
+                                        @foreach($model['invalidates'] as $invalidated)
+                                            <span class="badge badge-relation">→ {{ $invalidated }}</span>
+                                        @endforeach
+                                    @else
+                                        <span style="color: #6b7280;">—</span>
+                                    @endif
                                 </td>
                                 <td style="text-align: right;">
                                     <form action="{{ route('smart-cache.clear-table', ['table' => $model['table']]) }}" method="POST" style="display: inline;">
@@ -204,5 +209,20 @@
             </form>
         </div>
     </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#7c3aed',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#5b21b6',
+                lineColor: '#00d4ff',
+                secondaryColor: '#1a1a2e',
+                tertiaryColor: '#16213e'
+            }
+        });
+    </script>
 </body>
 </html>

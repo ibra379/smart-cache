@@ -13,7 +13,7 @@ class SmartCacheDiscovery
     /**
      * Discover all models using the HasSmartCache trait.
      *
-     * @return array<int, array{class: string, table: string, short_name: string}>
+     * @return array<int, array{class: string, table: string, short_name: string, invalidates: array<string>}>
      */
     public function discoverCachedModels(): array
     {
@@ -41,10 +41,22 @@ class SmartCacheDiscovery
                 try {
                     /** @var Model $instance */
                     $instance = new $className;
+                    
+                    // Get related models that this model invalidates
+                    $invalidates = [];
+                    if (method_exists($className, 'invalidatesSmartCacheOf')) {
+                        /** @var array<class-string<Model>> $relatedClasses */
+                        $relatedClasses = $className::invalidatesSmartCacheOf();
+                        foreach ($relatedClasses as $relatedClass) {
+                            $invalidates[] = class_basename($relatedClass);
+                        }
+                    }
+                    
                     $models[] = [
                         'class' => $className,
                         'table' => $instance->getTable(),
                         'short_name' => class_basename($className),
+                        'invalidates' => $invalidates,
                     ];
                 } catch (\Throwable) {
                     // Skip models that can't be instantiated
@@ -57,6 +69,63 @@ class SmartCacheDiscovery
         usort($models, fn ($a, $b) => $a['short_name'] <=> $b['short_name']);
 
         return $models;
+    }
+
+    /**
+     * Generate Mermaid diagram code for cache relations.
+     *
+     * @param array<int, array{class: string, table: string, short_name: string, invalidates: array<string>}> $models
+     */
+    public function generateMermaidDiagram(array $models): string
+    {
+        $lines = ['graph LR'];
+        $hasRelations = false;
+
+        foreach ($models as $model) {
+            $from = $model['short_name'];
+            
+            foreach ($model['invalidates'] as $to) {
+                $lines[] = "    {$from}[\"📦 {$from}\"] -->|invalidates| {$to}[\"📦 {$to}\"]";
+                $hasRelations = true;
+            }
+        }
+
+        // If no relations, show isolated nodes
+        if (! $hasRelations) {
+            foreach ($models as $model) {
+                $name = $model['short_name'];
+                $lines[] = "    {$name}[\"📦 {$name}\"]";
+            }
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Get all tables that should be invalidated when a specific table is cleared.
+     *
+     * @param array<int, array{class: string, table: string, short_name: string, invalidates: array<string>}> $models
+     * @return array<string> List of related table names
+     */
+    public function getRelatedTables(string $table, array $models): array
+    {
+        $relatedTables = [];
+        
+        // Find the model for this table
+        foreach ($models as $model) {
+            if ($model['table'] === $table && ! empty($model['invalidates'])) {
+                // Find tables for invalidated models
+                foreach ($model['invalidates'] as $invalidatedShortName) {
+                    foreach ($models as $targetModel) {
+                        if ($targetModel['short_name'] === $invalidatedShortName) {
+                            $relatedTables[] = $targetModel['table'];
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $relatedTables;
     }
 
     /**
@@ -113,4 +182,3 @@ class SmartCacheDiscovery
         }
     }
 }
-

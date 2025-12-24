@@ -24,24 +24,30 @@ class SmartCacheDashboardController extends Controller
      */
     public function index(): View
     {
+        $models = $this->discovery->discoverCachedModels();
+        
         return view('smart-cache::dashboard', [
             'stats' => $this->stats->toArray(),
             'enabled' => $this->cacheManager->isEnabled(),
             'supportsTags' => $this->cacheManager->supportsTags(),
             'prefix' => $this->cacheManager->getPrefix(),
             'ttl' => $this->cacheManager->getTtl(),
-            'models' => $this->discovery->discoverCachedModels(),
+            'models' => $models,
+            'mermaidDiagram' => $this->discovery->generateMermaidDiagram($models),
         ]);
     }
 
     /**
-     * Clear all cache.
+     * Clear all cache for all discovered models.
      */
     public function clearAll(): RedirectResponse
     {
-        if ($this->cacheManager->supportsTags()) {
-            $prefix = $this->cacheManager->getPrefix();
-            $this->cacheManager->invalidateTags([$prefix]);
+        $prefix = $this->cacheManager->getPrefix();
+        $models = $this->discovery->discoverCachedModels();
+        
+        // Invalidate cache for each discovered model table
+        foreach ($models as $model) {
+            $this->cacheManager->invalidateTags([$prefix.'.'.$model['table']]);
         }
 
         $this->stats->reset();
@@ -51,22 +57,35 @@ class SmartCacheDashboardController extends Controller
         $path = '/'.$dashboardPath;
 
         return redirect($path)
-            ->with('success', 'All SmartCache entries cleared.');
+            ->with('success', 'All SmartCache entries cleared ('.count($models).' models).');
     }
 
     /**
-     * Clear cache for a specific table.
+     * Clear cache for a specific table and its related tables.
      */
     public function clearTable(string $table): RedirectResponse
     {
         $prefix = $this->cacheManager->getPrefix();
+        $models = $this->discovery->discoverCachedModels();
+        
+        // Invalidate the main table
         $this->cacheManager->invalidateTags([$prefix.'.'.$table]);
+        
+        // Invalidate related tables (cascade like Observer does)
+        $relatedTables = $this->discovery->getRelatedTables($table, $models);
+        foreach ($relatedTables as $relatedTable) {
+            $this->cacheManager->invalidateTags([$prefix.'.'.$relatedTable]);
+        }
 
         /** @var string $dashboardPath */
         $dashboardPath = config('smart-cache.dashboard.path', 'smart-cache');
         $path = '/'.$dashboardPath;
+        
+        $message = "Cache cleared for table: {$table}.";
+        if (! empty($relatedTables)) {
+            $message .= ' Also cleared: '.implode(', ', $relatedTables).'.';
+        }
 
-        return redirect($path)
-            ->with('success', "Cache cleared for table: {$table}.");
+        return redirect($path)->with('success', $message);
     }
 }
