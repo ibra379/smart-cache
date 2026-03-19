@@ -6,6 +6,8 @@ namespace DialloIbrahima\SmartCache;
 
 use DialloIbrahima\SmartCache\Commands\ClearSmartCacheCommand;
 use DialloIbrahima\SmartCache\Http\Controllers\SmartCacheDashboardController;
+use DialloIbrahima\SmartCache\Observers\SmartCacheObserver;
+use DialloIbrahima\SmartCache\SmartCacheDiscovery;
 use Illuminate\Support\Facades\Route;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -40,7 +42,20 @@ class SmartCacheServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
+        $this->registerObserversForModels();
         $this->registerDashboardRoutes();
+    }
+
+    protected function registerObserversForModels(): void
+    {
+        // Register observer for all models using HasSmartCache trait
+        $discovery = new SmartCacheDiscovery;
+        $models = $discovery->discoverCachedModels();
+
+        foreach ($models as $model) {
+            $modelClass = $model['class'];
+            $modelClass::observe(SmartCacheObserver::class);
+        }
     }
 
     protected function registerDashboardRoutes(): void

@@ -33,14 +33,6 @@ trait HasSmartCache
     protected ?int $smartCacheTtl = null;
 
     /**
-     * Boot the trait and register the observer.
-     */
-    public static function bootHasSmartCache(): void
-    {
-        static::observe(SmartCacheObserver::class);
-    }
-
-    /**
      * Scope to enable smart caching for this query.
      *
      * @param  int|null  $ttl  Cache TTL in minutes (null = use config default)
