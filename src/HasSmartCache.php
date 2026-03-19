@@ -76,7 +76,7 @@ trait HasSmartCache
      */
     public function scopeSmartGet(Builder $query, array|string $columns = ['*']): Collection
     {
-        $columns = is_array($columns) ? $columns : func_get_args();
+        $columns = is_array($columns) ? $columns : array_slice(func_get_args(), 1);
 
         return $this->executeWithSmartCache($query, function () use ($query, $columns) {
             return $query->get($columns);
@@ -90,7 +90,7 @@ trait HasSmartCache
      */
     public function scopeSmartFirst(Builder $query, array|string $columns = ['*']): ?Model
     {
-        $columns = is_array($columns) ? $columns : func_get_args();
+        $columns = is_array($columns) ? $columns : array_slice(func_get_args(), 1);
 
         return $this->executeWithSmartCache($query, function () use ($query, $columns) {
             return $query->first($columns);
