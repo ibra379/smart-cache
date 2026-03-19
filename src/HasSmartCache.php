@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DialloIbrahima\SmartCache;
 
-use DialloIbrahima\SmartCache\Observers\SmartCacheObserver;
 use DialloIbrahima\SmartCache\Support\CacheKeyGenerator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -31,6 +30,16 @@ trait HasSmartCache
     protected static bool $smartCacheEnabled = true;
 
     protected ?int $smartCacheTtl = null;
+
+    /**
+     * Boot the trait and register event callbacks for cache invalidation.
+     */
+    public static function bootHasSmartCache(): void
+    {
+        static::created(fn ($model) => self::invalidateCacheForModel($model));
+        static::updated(fn ($model) => self::invalidateCacheForModel($model));
+        static::deleted(fn ($model) => self::invalidateCacheForModel($model));
+    }
 
     /**
      * Scope to enable smart caching for this query.
@@ -273,5 +282,43 @@ trait HasSmartCache
     public static function invalidatesSmartCacheOf(): array
     {
         return [];
+    }
+
+    /**
+     * Invalidate cache for a model and its related models.
+     */
+    protected static function invalidateCacheForModel(Model $model): void
+    {
+        /** @var SmartCacheManager $cacheManager */
+        $cacheManager = app(SmartCacheManager::class);
+
+        if (! $cacheManager->isEnabled()) {
+            return;
+        }
+
+        $table = $model->getTable();
+        $prefix = $cacheManager->getPrefix();
+
+        // Invalidate record-level cache (for smartFind)
+        $id = $model->getKey();
+        if ($id !== null) {
+            $cacheManager->invalidateTags([$prefix.'.'.$table.'.'.$id]);
+        }
+
+        // Invalidate table-level cache (for smartGet, smartFirst, etc.)
+        $cacheManager->invalidateTags([$prefix.'.'.$table]);
+
+        // Invalidate related model caches
+        if (method_exists($model, 'invalidatesSmartCacheOf')) {
+            /** @var array<class-string<Model>> $relatedModels */
+            $relatedModels = $model::invalidatesSmartCacheOf();
+
+            foreach ($relatedModels as $relatedClass) {
+                /** @var Model $relatedInstance */
+                $relatedInstance = new $relatedClass;
+                $relatedTable = $relatedInstance->getTable();
+                $cacheManager->invalidateTags([$prefix.'.'.$relatedTable]);
+            }
+        }
     }
 }
